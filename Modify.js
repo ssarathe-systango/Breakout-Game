@@ -3,10 +3,11 @@ const ctx = cvs.getContext("2d");
 const PADDLE_WIDTH = 100;
 const PADDLE_HEIGHT = 20;
 const PADDLE_MARGIN_BOTTOM = 50;
-const BALL_RADIUS = 8;
+const BALL_RADIUS = 12;
 
+// Background Image
 const BACKGROUND = new Image;
-BACKGROUND.src = "./bg21.jpg";
+BACKGROUND.src = "./Meridian.jpg";
 
 let leftArrow = false
 let rightArrow = false
@@ -15,15 +16,7 @@ let SCORE = 0;
 let SCORE_UNIT = 10;
 let LEVEL = 1;
 let MAX_LEVEL = 3;
-// let SCORE_IMG = new Image();
-// let LEVEL_IMG = new Image();
-// let LIFE_IMG = new Image();
 let GAME_OVER = false;
-let BRICK_HIT = new Audio();
-let PADDLE_HIT = new Audio();
-let LIFE_LOST = new Audio();
-let WALL_COLLISION = new Audio();
-let WIN_SOUND = new Audio();
 
 
 
@@ -101,11 +94,9 @@ function moveBall() {
 function ballWallCollision() {
     if (ball.x + ball.radius > cvs.width || ball.x - ball.radius < 0) {
         ball.dx = -ball.dx;
-        WALL_COLLISION.play();
     }
     if (ball.y - ball.radius < 0) {
         ball.dy = -ball.dy;
-        WALL_COLLISION.play();
     }
     if (ball.y + ball.radius > cvs.height) {
         LIFE--;
@@ -131,15 +122,14 @@ function ballPaddleCollision() {
 
         ball.dx = ball.speed * Math.sin(angle);
         ball.dy = -ball.speed * Math.cos(angle);
-        PADDLE_HIT.play();
     }
 }
 
 const brick = {
     row: 2,
-    column: 15,
-    width: 55,
-    height: 20,
+    column: 10,
+    width: 80,
+    height: 25,
     offSetLeft: 20,
     offSetTop: 20,
     marginTop: 40,
@@ -180,58 +170,18 @@ function drawBricks() {
 }
 
 
-function ballBrickCollision() {
-    for (let r = 0; r < brick.row; r++) {
-        for (let c = 0; c < brick.column; c++) {
-            let b = bricks[r][c];
-            if (b.status) {
-                if (ball.x + ball.radius > b.x && ball.x - ball.radius < b.x + brick.width && ball.y + ball.radius > b.y && ball.y - ball.radius < b.y + brick.height) {
-                    ball.dy = -ball.dy;
-                    b.status = false;
-                    SCORE += SCORE_UNIT;
-                    BRICK_HIT.play();
-                }
-            }
-        }
-    }
-}
-
 function showGamePoints(text, textX, textY) {
-    ctx.fillStyle = "Black";
-    ctx.font = "25px Germania One";
+    ctx.fillStyle = "Orange";
+    ctx.font = "22px bold";
     ctx.fillText(text, textX, textY);
 
 }
 
 function gameOver() {
-    if (LIFE < 0) {
+    if (LIFE <= 0) {
         GAME_OVER = true;
-        showGamePoints("Game Over", cvs.width / 2 - 40, cvs.height / 2);
-        showGamePoints("Refresh to Play Again!", cvs.width / 2 - 100, cvs.height / 2 + 30);
-    }
-}
-
-function levelUp() {
-    let isLevelDone = true;
-
-    for (let r = 0; r < brick.row; r++) {
-        for (let c = 0; c < brick.column; c++) {
-            isLevelDone = isLevelDone && !bricks[r][c].status;
-        }
-    }
-
-    if (isLevelDone) {
-        if (LEVEL >= MAX_LEVEL) {
-            GAME_OVER = true;
-            WIN_SOUND.play();
-            showGamePoints("Win Win !", cvs.width / 2 - 45, cvs.height / 2);
-            return;
-        }
-        brick.row++;
-        createBricks();
-        ball.speed += 0.9;
-        resetBall();
-        LEVEL++;
+        showGamePoints("Game Over", cvs.width / 2 - 50, cvs.height / 2);
+        showGamePoints("Play Again !", cvs.width / 2 - 50, cvs.height / 2 + 30);
     }
 }
 
@@ -249,9 +199,8 @@ function update() {
     moveBall();
     ballWallCollision();
     ballPaddleCollision();
-    ballBrickCollision();
     gameOver();
-    levelUp();
+   
 }
 
 function loop() {
